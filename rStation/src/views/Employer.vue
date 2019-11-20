@@ -2,59 +2,74 @@
   <div class="container bootstrap snippet">
     <div class="row menu-items">
       <ProfileMenu></ProfileMenu>
-      <div class="menu-data row col-sm-10">
+      <div class="menu-data row col-sm-9">
         <BookingModal :booking="temp" v-if="showModal" @close="showModal = false"></BookingModal>
         <table>
           <thead>
             <tr class="table-headers">
-              <th>EmployerID</th>
-              <th>EmpName</th>
-              <th>Week days and hours</th>
-              <th>WorkingStation</th>
+              <th>UUID</th>
+              <th>Name</th>
+              <th>Time slots</th>
+              <th>Station</th>
               <th>Salary</th>
-              <th>OverallHours</th>
-              <th>Delete</th>
+              <th>Week hours</th>
+              <th></th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="employer in employers" :key="employer">
+            <tr class="employer-row" v-for="employer in employers" :key="employer">
               <td class="bookingId">{{employer.EmployerId}}</td>
-              <td v-on:click="updateName(employer)">
+              <td>
                 <input
-                  :id="employer.EmployerId"
+                  :id="'name_' + employer.EmployerId"
                   type="text"
                   v-model="employer.EmployerName"
-                  disabled
                 />
               </td>
 
-              <td v-on:click="updateWorkDays(employer)">
+              <td>
                 <input
-                  :id="employer.EmployerId+'workdays'"
+                  :id="'workDays_' + employer.EmployerId"
                   type="text"
                   v-model="employer.EmployerWorkDays"
-                  disabled
                 />
               </td>
-              <td v-on:click="updateWorkStation(employer)">
+              <td>
                 <input
-                  :id="employer.EmployerId+'station'"
+                  :id="'station_' + employer.EmployerId"
                   type="text"
                   v-model="employer.WorkingStation"
-                  disabled
                 />
               </td>
-              <td v-on:click="updateSalary(employer)">
+              <td>
                 <input
-                  :id="employer.EmployerId+'salary'"
+                  class="intInput"
+                  :id="'salary_' + employer.EmployerId"
                   type="text"
                   v-model="employer.Salary"
-                  disabled
                 />
               </td>
-              <td>{{OverallHours}}</td>
+              <td>
+                <input
+                  class="intInput"
+                  :id="'workHours_' + employer.EmployerId"
+                  type="text"
+                  v-model="employer.OverallHours"
+                />
+              </td>
+              <td v-on:click="Edit(employer)" style="text-align:center">
+                <i class="fas fa-edit"></i>
+              </td>
               <td v-on:click="Delete(employer)" style="text-align:center">
                 <i class="fas fa-trash"></i>
+              </td>
+            </tr>
+            <tr>
+              <td style="border:none;background: #fff;">
+                <div style="text-align:left;position:relative">
+                  <button class="button" v-on:click="AddEmpolyer()">Add Employee</button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -63,7 +78,8 @@
       <!--/col-9-->
     </div>
     <div style="text-align:right;position:relative">
-      <button class="button" v-on:click="save">Save</button>
+      <button class="button" v-on:click="Reset()">Reset</button>
+      <button class="button" v-on:click="Save()">Save</button>
     </div>
   </div>
 </template>
@@ -81,32 +97,70 @@ export default {
     return {
       showModal: false,
       saveUpdates: false,
+      canAddEmployer: true,
       employers: [
         {
           EmployerId: "01892340",
           EmployerName: "Kopbosinov Jaxsylyk",
           EmployerWorkDays: "M,W,T  12:00-19:00",
-          WorkingStation: "Almaty-Astana",
-          Salary: 120000
+          WorkingStation: "Astana",
+          Salary: 120000,
+          OverallHours: 32
         },
         {
           EmployerId: "01892341",
           EmployerName: "Jaxsylyk Kopbosinov",
           EmployerWorkDays: "M,W,T 12:00-19:00",
-          WorkingStation: "Almaty-Astana",
-          Salary: 130000
-        },
-        {
-          EmployerId: "01892342",
-          EmployerName: "Jaxsylyk Kopbosinov",
-          EmployerWorkDays: "M,W,T 12:00-19:00",
-          WorkingStation: "Almaty-Astana",
-          Salary: 145000
+          WorkingStation: "Almaty",
+          Salary: 130000,
+          OverallHours: 36
         }
       ]
     };
   },
+  mounted: function () {
+    this.disabler();
+    this.getEmployers();
+  },
   methods: {
+    disabler(){
+      var temp = document.getElementsByClassName('employer-row');
+      for(let x = 0; x < temp.length; x++){
+        var inputs = temp[x].querySelectorAll('input');
+        for(let i = 0; i < inputs.length; i++){
+          inputs[i].disabled = true;
+        }
+      }
+    },
+    AddEmpolyer(){
+      if(this.canAddEmployer){
+        this.canAddEmployer = false;
+        this.employers.push({
+            EmployerId: "",
+            EmployerName: "",
+            EmployerWorkDays: "",
+            WorkingStation: "",
+            Salary: 0,
+            OverallHours: 0
+        })
+      } else {
+        alert("Please, fill all fields.");
+      }
+    },
+    Edit(employer){
+      document.getElementById('name_' + employer.EmployerId).disabled = false;
+      document.getElementById('workDays_' + employer.EmployerId).disabled = false;
+      document.getElementById('station_' + employer.EmployerId).disabled = false;
+      document.getElementById('salary_' + employer.EmployerId).disabled = false;
+      document.getElementById('workHours_' + employer.EmployerId).disabled = false;
+    },
+    Save() {
+      //axios
+      window.location.reload();
+    },
+    Reset(){
+      window.location.reload();
+    },
     Delete(emp) {
       var _this = this;
       del(
@@ -124,32 +178,6 @@ export default {
         },
         function(error) {}
       );
-    },
-
-    updateName(employer) {
-      var temp = employer.EmployerId;
-      console.log(temp);
-      document.getElementById(temp).removeAttribute("disabled");
-    },
-    updateWorkStation(employer) {
-      var temp = employer.EmployerId + "station";
-      document.getElementById(temp).removeAttribute("disabled");
-    },
-    updateWorkDays(employer) {
-      var temp = employer.EmployerId + "workdays";
-      document.getElementById(temp).removeAttribute("disabled");
-    },
-    openModal(data) {
-      this.showModal = true;
-      this.temp = data;
-    },
-
-    updateSalary(employer) {
-      var temp = employer.EmployerId + "salary";
-      document.getElementById(temp).removeAttribute("disabled");
-    },
-    save() {
-      window.location.reload();
     },
     getEmployers() {
       let _this = this;
@@ -172,9 +200,6 @@ export default {
     OverallHours() {
       return;
     }
-  },
-  mounted() {
-    this.getEmployers();
   }
 };
 </script>
@@ -203,28 +228,45 @@ export default {
 
 .menu-data {
   table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 6px;
+    text-align: left;
+    overflow: hidden;
     .bookingId {
       cursor: pointer;
     }
     .bookingId:hover {
       background-color: #00ff99;
     }
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: 6px;
-    text-align: left;
-    overflow: hidden;
-    td,
-    th {
+    .employer-row{
+      border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+    }
+    td, th {
       border-top: 1px solid #ecf0f1;
-      padding: 10px;
+      padding: 8px 6px;
+      position: relative;
+      input{
+        padding: 2px;
+      }
+      .intInput{
+        max-width: 72px;
+      }
+      input:disabled{
+        background: none;
+        border: none;
+      }
+      input:enabled{
+        border: 1px solid rgba(0, 0, 0, 0.3);
+        border-radius: 3px;
+      }
     }
 
     td {
       border-left: 1px solid #ecf0f1;
       border-right: 1px solid #ecf0f1;
     }
-
+    
     th {
       background-color: #00ff99;
     }

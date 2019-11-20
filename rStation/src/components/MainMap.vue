@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div style="position:fixed; width: 100%; height: 100%; z-index:1; top: 0;">
         <div class="google-map" id="map"></div>
         <input type="button" class="btn btn-danger" @click="saveRoad()" value="Add Road">
     </div>
@@ -40,8 +40,8 @@ import GoogleMapsLoader from 'google-maps'
                 GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];
                 GoogleMapsLoader.load(function(google) {
                     var options = {
-                        zoom: 5,
-                        center:{ lat: 45.5, lng: 67},
+                        zoom: 5.3,
+                        center:{ lat: 48.5, lng: 67},
                         mapTypeId: 'roadmap', //terrain, hybrid, satellite
                         scrollwheel: false,
                         fullscreenControl: false,

@@ -19,18 +19,24 @@
                                                         <div class="form-group col-4">
                                                             <label class="form-group">
                                                                 <p class="enter-names enter-names-to">From:</p>
-                                                                <autocomplete-vue class="station-input" :v-model="stationFrom" :list="kzCities" property="city" placeholder="Choose Station..." classPrefix="pick-station" inputClass="pick-input" :threshold="1"></autocomplete-vue>
+                                                                <select @change="selectFrom($event)" class="form-control" name="movies">
+                                                                    <option value="Station From" disabled selected>Station From</option>
+                                                                    <option v-for="city in kzCities" :key="city.StationID" :selected="stationFrom === city.name">{{city.name}}</option>
+                                                                </select>
                                                             </label>
                                                         </div>
                                                         <div class="form-group col-1">
-                                                            <div class="swap-icon">
-                                                                <i @click="swapStations()" class="fas fa-exchange-alt"></i>
+                                                            <div class="swap-icon" @click="swapStations()">
+                                                                <i class="fas fa-exchange-alt"></i>
                                                             </div>
                                                         </div>
                                                         <div class="form-group col-4">
                                                             <label class="form-group">
                                                                 <p class="enter-names enter-names-to">To:</p>
-                                                                <autocomplete-vue :v-model="stationTo" :list="kzCities" property="city" placeholder="Choose Station..." classPrefix="pick-station" inputClass="pick-input" :threshold="1"></autocomplete-vue>
+                                                                <select @change="selectTo($event)" class="form-control" name="movies">
+                                                                    <option value="Station From" disabled selected>Station To</option>
+                                                                    <option v-for="city in kzCities" :key="city.StationID" :selected="stationTo === city.name">{{city.name}}</option>
+                                                                </select>
                                                             </label>
                                                         </div>
                                                         <div class="form-group form-group-date col-4">
@@ -52,11 +58,9 @@
                             
                         </div>
                     </div>
-       
                 </div>
             </div>
         </section>
-
         <div v-if="travelInstance">
           <TrainInfo ref="showAllSchedule"></TrainInfo>
         </div>
@@ -75,15 +79,14 @@
 import MainMap from '../components/MainMap.vue'
 import ScheduleTable from '../components/ScheduleTable.vue'
 import TrainInfo from '../components/TrainInfo.vue'
-import AutocompleteVue from 'autocomplete-vue'
 import json from '../assets/kz.json'
+import axios from 'axios'
 
 export default {
     components:{
         MainMap,
         ScheduleTable,
         TrainInfo,
-        'autocomplete-vue': AutocompleteVue
     },
   data() {
     return {
@@ -118,31 +121,23 @@ export default {
     }
   },
   mounted() {
-  
-    var inputs = document.getElementsByClassName('pick-input');
-    for( let i = 0; i < inputs.length; i++ ){
-      inputs[i].style.height = "40px";
-      inputs[i].style.width = "100%";
-      inputs[i].style.padding = "0px 16px";
-    }
-   
     if (localStorage.stationFrom && localStorage.stationTo) {
       this.stationFrom = localStorage.stationFrom;
       this.stationTo = localStorage.stationTo;
     }
-    //   axios.get('http://localhost:8080/databind/api/stations',{
-    //     header:{
-    //       'Access-Control-Allow-Origin': '*',
-    //       "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE",
-    //       "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    //     }
-    //   })
-    //   .then(response => {
-    //       this.stations = response.data;
-    //   })
-    //   .catch(e => {
-    //       console.log(e);
-    //   })
+    axios.get("http://10.3.30.241:8080/databind/api/stations", {
+        headers: {
+          Authorization:
+            "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJuYXppcnpodW1ha2hhbkBnbWFpbC5jb20iLCJpYXQiOjE1NzQwOTczOTgsInN1YiI6ImxvZ2luIiwiaXNzIjoicm95YWx3YXkiLCJleHAiOjE1NzY3MjcxNDR9.fT21D1IomAggrvcs9Uc0YNbUtcIHtS7T6J-k4e9nHoU"
+        }
+      }).then(response => {
+        this.kzCities = response.data;
+        console.log(this.kzCities);
+
+        console.log("success");
+      }).catch(e => {
+        console.log(e);
+      });
   },
   methods: {
     selectFrom(event) {
@@ -166,6 +161,7 @@ export default {
       this.Datee = val;
     },
     showSchedules() {
+      console.log(this.stationFrom)
       this.showSchedule = true;
       //location.reload();
       //   if(this.stationFrom && this.stationTo && this.Date){
@@ -210,7 +206,6 @@ export default {
     background: #fff;
     border: rgba(0,0,0,0.8);
     border-radius: .25rem;
-    height: 40px;
     width: 100%;
 }
 .home{
@@ -231,13 +226,9 @@ export default {
   height: 100%;
   top: 0;
   left: 0;
-  background-color: rgba(14, 2, 35, 0.1);
   z-index: 10;
 }
 
-.bg-overlay-9:after {
-  background-color: rgba(14, 2, 35, 0.9);
-}
 .booking-form {
   position: relative;
   max-width: 800px;

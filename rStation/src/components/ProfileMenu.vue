@@ -1,17 +1,21 @@
 <template>
-  <div class="col-sm-2">
+  <div class="col-sm-3">
     <ul class="menu-list">
       <li class="menu-list-item" @click="$router.push('/profile')">
         <i class="fas fa-user-circle"></i>
         <span>Profile</span>
       </li>
+       <li class="menu-list-item" @click="$router.push('/stations')">
+        <i class="fas fa-place-of-worship"></i>
+        <span>Stations</span>
+      </li>
       <li class="menu-list-item" @click="$router.push('/routes')">
         <i class="fas fa-map-marked-alt"></i>
         <span>Routes</span>
       </li>
-      <li class="menu-list-item" @click="$router.push('/employeeSchedule')">
+      <li class="menu-list-item" @click="$router.push('/employer')">
         <i class="fas fa-user"></i>
-        <span>Employer</span>
+        <span>Employees</span>
       </li>
 
       <li class="menu-list-item" @click="$router.push('/bookings')">

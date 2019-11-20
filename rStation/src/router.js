@@ -7,8 +7,9 @@ import Register from "./views/Register.vue";
 import Profile from "./views/Profile.vue";
 import Bookings from "./views/Bookings.vue";
 import Settings from "./views/Settings.vue";
-import EmployeeSchedule from "./views/EmployeeSchedule.vue";
+import Employer from "./views/Employer.vue";
 import Routes from "./views/Routes.vue";
+import Stations from "./views/Stations.vue";
 
 Vue.use(Router);
 
@@ -65,9 +66,14 @@ export default new Router({
       component: Routes
     },
     {
-      path: "/employeeSchedule",
-      name: "EmployeeSchedule",
-      component: EmployeeSchedule
+      path: "/stations",
+      name: "stations",
+      component: Stations
+    },
+    {
+      path: "/employer",
+      name: "employer",
+      component: Employer
     }
   ]
 });

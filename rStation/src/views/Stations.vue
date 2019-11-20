@@ -4,11 +4,11 @@
             <ProfileMenu></ProfileMenu> 
             <div class="menu-data row col-sm-9">
                 <div class="station-form">
-                    <input type="button" class="btn btn-danger add-station" value="Add Route">
-                    <input type="button" @click="init(true)" class="btn btn-danger add-station" value="Pick Route">
+                    <input type="button" @click="init(true)" class="btn btn-danger add-station" value="Add Station">
+                    <input type="button" @click="init(false)" class="btn btn-danger add-station" value="Pick Station">
                     <form class="form" id="registrationForm">
-                        <div class="alert-box"> 
-                            <span>Please click on a stations on Map below to make a Route.</span>
+                        <div class="alert-box" v-if="addStation"> 
+                            <span>Please click on a station on Map below.</span>
                         </div>
                         <div class="row">
                             <div class="form-group col-4">
@@ -29,17 +29,27 @@
                                     <input :class="{ 'active': hasfocus == 3 }" @focusin="focusIn(3)" @focusout="focusOut(3)" type="text" id="stationLongitude" class="form-control" name="stationLongitude" placeholder="52.12432" title="enter your phone number if any." :disabled="viewMode">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-sm-10">
+                        </div>
+                        <div class="form-group row">
+                                <div class="col-md-2">
                                     <button class="btn btn-lg btn-warning" type="button" v-if="viewMode" @click="editData(false)">Edit</button>
-                                    <button class="btn btn-lg btn-success" type="submit" v-else @click="editData(true)">Save</button>
+                                    <button class="btn btn-lg btn-success" type="button" v-else @click="editData(true)">Save</button>
+                                </div>
+                                <div class="col-md-2" v-if="!addStation">
+                                    <button class="btn btn-lg btn-danger" type="button" @click="deleteData(true)">Delete</button>
                                 </div>
                             </div>
-                        </div>
                     </form>
                 </div>
+                <!-- <autocomplete-vue
+                    :list="kzCities"
+                    property="city"
+                    placeholder="Choose Station..."
+                    classPrefix="pick-station"
+                    inputClass="pick-input"
+                    threshold="2"
+                ></autocomplete-vue> -->
                 <div class="google-map" id="map"></div>
-                <input type="button" class="btn btn-danger" @click="saveRoad()" value="Add Road">
             </div>
         </div>
     </div>
@@ -48,11 +58,13 @@
 <script>
 import GoogleMapsLoader from 'google-maps'
 import ProfileMenu from '../components/ProfileMenu.vue'
+import AutocompleteVue from 'autocomplete-vue'
 import json from '../assets/kz.json'
 
     export default {
         components:{
             ProfileMenu,
+            'autocomplete-vue': AutocompleteVue
         },
         name: 'google-map',
         data() {
@@ -62,6 +74,7 @@ import json from '../assets/kz.json'
                 clickedRoutes: null,
                 hasfocus: 0,
                 viewMode: false,
+                addStation: false,
                 stationName: null,
                 stationLatitute: null,
                 stationLongitude: null
@@ -78,11 +91,16 @@ import json from '../assets/kz.json'
         methods: {
             init(value){
                 var stations = this.kzCities;
-                let clickedCoords = new Array();
+                this.addStation = value;
+                var addStation = value;
+                document.getElementById("stationName").value = '';
+                document.getElementById("stationLatitute").value = '';
+                document.getElementById("stationLongitude").value = '';
                 GoogleMapsLoader.KEY = 'AIzaSyC89sEOJvI6sPySOghfkKsm7FsLqfZZL98';   // Google map api KEY ( Change to your's )
                 GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];                // Library for more map options
                 GoogleMapsLoader.REGION = ['KZ'];  
                 GoogleMapsLoader.load(function(google) {
+                    var clickedStations = new google.maps.Marker();
                     var options = {
                         zoom: 5,
                         center:{ lat: 48.8, lng: 66.9},     // Center of Map
@@ -164,48 +182,30 @@ import json from '../assets/kz.json'
                     }
                     const map = new google.maps.Map(document.getElementById('map'), options);
                     
-                    var colorArray = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff', '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#808080', '#ffffff', '#000000'];
-                    var flightPlanCoordinates = [];
-                    if(localStorage.allRoutes){
-                        flightPlanCoordinates =  JSON.parse(localStorage.getItem('allRoutes'))
-                    }
-                    let i = 0;
-                    flightPlanCoordinates.forEach((flightPlanCoordinate) => {
-                        var flightPath = new google.maps.Polyline({
-                            path: flightPlanCoordinate,
-                            geodesic: true,
-                            strokeColor: colorArray[i],
-                            strokeOpacity: 0.7,
-                            strokeWeight: 4
+                    if(addStation){
+                        /*   Click on map   */
+                        google.maps.event.addListener(map, 'click', function(event) {
+                            clickedStations.setMap(null);
+                            var marker = new google.maps.Marker({
+                                position: event.latLng, 
+                                map: map,
+                            });
+                            clickedStations = marker;
+                            marker.setAnimation(google.maps.Animation.BOUNCE);
+                            new google.maps.Marker(marker)  
+                            document.getElementById("stationLatitute").value = marker.position.lat();
+                            document.getElementById("stationLongitude").value = marker.position.lng();
                         });
-                        flightPath.setMap(map);
-                        var poly = new google.maps.Polyline({
-                            strokeColor: '#000000',
-                            strokeOpacity: 1.0,
-                            strokeWeight: 2
-                        });
-                        poly.setMap(map);
-                        i++;
-                    })
-
+                    } 
+            
                     /*   Click on marker   */
                     stations.forEach((station) => {
                         station.lat = parseFloat(station.lat);
                         station.lng = parseFloat(station.lng);
                         google.maps.event.addDomListener(station, 'click', function() {
-                            clickedCoords.push({
-                                lat: station.lat,
-                                lng: station.lng,
-                                city: station.city
-                            });
-                            var flightPath = new google.maps.Polyline({
-                                path: clickedCoords,
-                                geodesic: true,
-                                strokeColor: '#FF0000',
-                                strokeOpacity: 1.0,
-                                strokeWeight: 4
-                            });
-                            flightPath.setMap(map);                        
+                            document.getElementById("stationName").value = station.city;
+                            document.getElementById("stationLatitute").value = station.lat;
+                            document.getElementById("stationLongitude").value = station.lng;
                         });
                         const position = new google.maps.LatLng(station.lat, station.lng)
                         station.map = map,
@@ -213,24 +213,6 @@ import json from '../assets/kz.json'
                         new google.maps.Marker(station)  
                     })
                 });
-                this.clickedRoutes = clickedCoords;
-            },
-            saveRoad(){
-                var allRoutes = new Array();
-                var routes = new Array();
-                this.clickedRoutes.forEach((route) => {
-                    routes.push({
-                        lat: route.lat,
-                        lng: route.lng,
-                        city: route.city
-                    });
-                })
-                if(localStorage.allRoutes){
-                    allRoutes =  JSON.parse(localStorage.getItem('allRoutes'))
-                } 
-                allRoutes.push(routes);
-                localStorage.setItem('allRoutes', JSON.stringify(allRoutes));
-                location.reload();
             },
             focusIn(value) {
                 this.hasfocus = value;
@@ -274,6 +256,7 @@ import json from '../assets/kz.json'
                 }
             }
             .station-form{
+                width: 100%;
                 .add-station{
                     z-index: 20;
                 }
