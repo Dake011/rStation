@@ -914,7 +914,6 @@ export default {
   border-left: 3px solid #ced5e2;
   border-right: 3px solid #ced5e2;
 }
-
 </style>
 
 

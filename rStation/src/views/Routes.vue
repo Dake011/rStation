@@ -6,40 +6,114 @@
                 <div class="station-form">
                     <input type="button" class="btn btn-danger add-station" value="Add Route">
                     <input type="button" @click="init(true)" class="btn btn-danger add-station" value="Pick Route">
+                    <input type="button" class="btn btn-danger" @click="saveRoad()" value="Save">
+                    <div class="alert-box"> 
+                        <span>Please click on a stations on Map below to make a Route.</span>
+                    </div>
+                    <div class="google-map" id="map"></div>
                     <form class="form" id="registrationForm">
-                        <div class="alert-box"> 
-                            <span>Please click on a stations on Map below to make a Route.</span>
-                        </div>
-                        <div class="row">
+                        <div class="row" v-for="coords in clickedCoords" :key="coords.city">
                             <div class="form-group col-4">
                                 <div class="col-sm-12">
-                                    <label for="stationName"><h4>Station name</h4></label>
-                                    <input :class="{ 'active': hasfocus == 1 }" @focusin="focusIn(1)" @focusout="focusOut(1)" type="text" id="stationName" class="form-control prefix" name="stationName" placeholder="Station name" title="enter your first name if any." :disabled="viewMode">
+                                    <label for="stationName"><h4>Station Name</h4></label>
+                                    <input :class="{ 'active': hasfocus == 1 }" @focusin="focusIn(1)" @focusout="focusOut(1)" :value="coords.city" type="text" id="stationName" class="form-control prefix" name="stationName" placeholder="Station name" title="enter your first name if any." :disabled="viewMode">
                                 </div>
                             </div>
                             <div class="form-group col-4">                        
                                 <div class="col-sm-12">
-                                    <label for="stationLatitute"><h4>Latitute</h4></label>
-                                    <input :class="{ 'active': hasfocus == 2 }" @focusin="focusIn(2)" @focusout="focusOut(2)" type="text" id="stationLatitute" class="form-control" name="stationLatitute" placeholder="73.1234" title="enter your last name if any." :disabled="viewMode">
+                                    <label for="stationLatitute"><h4>Arrival Time</h4></label>
+                                    <input :class="{ 'active': hasfocus == 2 }" @focusin="focusIn(2)" @focusout="focusOut(2)" type="text" id="stationLatitute" class="form-control" name="stationLatitute" placeholder="" title="enter your last name if any." :disabled="viewMode">
                                 </div>
                             </div>        
                             <div class="form-group col-4">              
                                 <div class="col-sm-12">
-                                    <label for="stationLongitude"><h4>Longitude</h4></label>
-                                    <input :class="{ 'active': hasfocus == 3 }" @focusin="focusIn(3)" @focusout="focusOut(3)" type="text" id="stationLongitude" class="form-control" name="stationLongitude" placeholder="52.12432" title="enter your phone number if any." :disabled="viewMode">
+                                    <label for="stationLongitude"><h4>Departure Time</h4></label>
+                                    <input :class="{ 'active': hasfocus == 3 }" @focusin="focusIn(3)" @focusout="focusOut(3)" type="text" id="stationLongitude" class="form-control" name="stationLongitude" placeholder="" title="enter your phone number if any." :disabled="viewMode">
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="col-sm-10">
-                                    <button class="btn btn-lg btn-warning" type="button" v-if="viewMode" @click="editData(false)">Edit</button>
-                                    <button class="btn btn-lg btn-success" type="submit" v-else @click="editData(true)">Save</button>
+                        </div>
+                        <div class="row" v-if="clickedCoords.length > 0">
+                            <div class="form-group col-4">
+                                <div class="col-sm-12">
+                                    <label for="stationName"><h4>Choose a Train</h4></label>
+                                    <select class="browser-default custom-select">
+                                        <option selected>Chose a train</option>
+                                        <option v-for="train in trains" :key="train" :selected="test === train">{{train}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-4">                        
+                                <div class="col-sm-12">
+                                    <label for="stationLatitute"><h4>Choose start day</h4></label>
+                                    <input type="date" id="stationName" class="form-control prefix" placeholder="Station name">
+                                </div>
+                            </div>        
+                            <div class="form-group col-4">              
+                                <div class="col-sm-12">
+                                    <label for="stationLongitude"><h4>Choose days interval</h4></label>
+                                    <input type="number" id="stationName" class="form-control prefix" placeholder="Station name">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" v-if="clickedCoords.length > 0">
+                            <div class="col-1"></div>
+                            <div class="col-4 custom-control custom-checkbox">
+                                <input v-model="addOpposite" @change="addOppositeDir(addOpposite)" type="checkbox" class="custom-control-input" id="defaultUnchecked">
+                                <label class="custom-control-label" for="defaultUnchecked">Add Train for Opposite direction</label>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="alert-box" v-if="addOpposite"> 
+                        <span>Another direction.</span>
+                    </div>
+                    <form class="form" id="registrationForm" v-if="addOpposite">
+                        <div class="row" v-for="coords in clickedCoordsOpposite" :key="coords.city">
+                            <div class="form-group col-4">
+                                <div class="col-sm-12">
+                                    <label for="stationName"><h4>Station Name</h4></label>
+                                    <input :class="{ 'active': hasfocus == 1 }" @focusin="focusIn(1)" @focusout="focusOut(1)" :value="coords.city" type="text" id="stationName" class="form-control prefix" name="stationName" placeholder="Station name" title="enter your first name if any." :disabled="viewMode">
+                                </div>
+                            </div>
+                            <div class="form-group col-4">                        
+                                <div class="col-sm-12">
+                                    <label for="stationLatitute"><h4>Arrival Time</h4></label>
+                                    <input :class="{ 'active': hasfocus == 2 }" @focusin="focusIn(2)" @focusout="focusOut(2)" :value="coords.arrTime" type="text" id="stationLatitute" class="form-control" name="stationLatitute" placeholder="" title="enter your last name if any." :disabled="viewMode">
+                                </div>
+                            </div>        
+                            <div class="form-group col-4">              
+                                <div class="col-sm-12">
+                                    <label for="stationLongitude"><h4>Departure Time</h4></label>
+                                    <input :class="{ 'active': hasfocus == 3 }" @focusin="focusIn(3)" @focusout="focusOut(3)" :value="coords.depTime"  type="text" id="stationLongitude" class="form-control" name="stationLongitude" placeholder="" title="enter your phone number if any." :disabled="viewMode">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" v-if="clickedCoordsOpposite.length > 0">
+                            <div class="form-group col-4">
+                                <div class="col-sm-12">
+                                    <label for="stationName"><h4>Choose a Train</h4></label>
+                                    <select class="browser-default custom-select">
+                                        <option selected>Chose a train</option>
+                                        <option v-for="train in trains" :key="train" :selected="test === train">{{train}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-4">                        
+                                <div class="col-sm-12">
+                                    <label for="stationLatitute"><h4>Choose start day</h4></label>
+                                    <input type="date" id="stationName" class="form-control prefix" placeholder="Station name">
+                                </div>
+                            </div>        
+                            <div class="form-group col-4">              
+                                <div class="col-sm-12">
+                                    <label for="stationLongitude"><h4>Choose days interval</h4></label>
+                                    <input type="number" id="stationName" class="form-control prefix" placeholder="Station name">
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
-                <div class="google-map" id="map"></div>
                 <input type="button" class="btn btn-danger" @click="saveRoad()" value="Add Road">
+                <input type="button" class="btn btn-default" @click="resetRoad()" value="Reset">
             </div>
         </div>
     </div>
@@ -60,11 +134,16 @@ import json from '../assets/kz.json'
                 kzCities: json,
                 map: null,
                 clickedRoutes: null,
+                clickedCoords: [],
+                clickedCoordsOpposite: [],
                 hasfocus: 0,
                 viewMode: false,
                 stationName: null,
                 stationLatitute: null,
-                stationLongitude: null
+                stationLongitude: null,
+                trains:[1,2,3],
+                test: null,
+                addOpposite: false
             }
         },
         computed: {
@@ -77,6 +156,7 @@ import json from '../assets/kz.json'
         },
         methods: {
             init(value){
+                var vm = this;
                 var stations = this.kzCities;
                 let clickedCoords = new Array();
                 GoogleMapsLoader.KEY = 'AIzaSyC89sEOJvI6sPySOghfkKsm7FsLqfZZL98';   // Google map api KEY ( Change to your's )
@@ -198,6 +278,16 @@ import json from '../assets/kz.json'
                                 lng: station.lng,
                                 city: station.city
                             });
+                            vm.clickedCoords.push({
+                                city: station.city,
+                                arrTime: '',
+                                depTime: ''
+                            })
+                            vm.clickedCoordsOpposite.unshift({
+                                city: station.city,
+                                arrTime: '',
+                                depTime: ''
+                            })
                             var flightPath = new google.maps.Polyline({
                                 path: clickedCoords,
                                 geodesic: true,
@@ -232,6 +322,9 @@ import json from '../assets/kz.json'
                 localStorage.setItem('allRoutes', JSON.stringify(allRoutes));
                 location.reload();
             },
+            resetRoad(){
+                window.location.reload()
+            },
             focusIn(value) {
                 this.hasfocus = value;
             },
@@ -240,6 +333,9 @@ import json from '../assets/kz.json'
             },
             editData(value){
                 this.viewMode = value;   
+            },
+            addOppositeDir(a){
+                console.log(a)
             }
         }
     }
@@ -274,6 +370,7 @@ import json from '../assets/kz.json'
                 }
             }
             .station-form{
+                width: 100%;
                 .add-station{
                     z-index: 20;
                 }
