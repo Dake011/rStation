@@ -11,7 +11,7 @@
       </li>
       <li class="menu-list-item" @click="$router.push('/employeeSchedule')">
         <i class="fas fa-user"></i>
-        <span>Employer Schedule</span>
+        <span>Employer</span>
       </li>
 
       <li class="menu-list-item" @click="$router.push('/bookings')">
