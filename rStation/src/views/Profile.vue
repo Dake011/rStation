@@ -26,8 +26,8 @@
                             </div>        
                             <div class="form-group">              
                                 <div class="col-sm-10">
-                                    <label for="phone"><h4>Phone</h4></label>
-                                    <input v-model="phone" :class="{ 'active': hasfocus == 3 }" @focusin="focusIn(3)" @focusout="focusOut(3)" type="text" class="form-control" name="phone" id="phone" placeholder="enter phone" title="enter your phone number if any." :disabled="viewMode">
+                                    <label for="password"><h4>Password</h4></label>
+                                    <input v-model="password" :class="{ 'active': hasfocus == 3 }" @focusin="focusIn(3)" @focusout="focusOut(3)" type="text" class="form-control" name="password" id="password" placeholder="password" title="enter your password." :disabled="viewMode">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -38,9 +38,9 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-10">
-                                    <button class="btn btn-lg btn-warning" type="button" v-if="viewMode" @click="editData(false)">Edit</button>
-                                    <button class="btn btn-lg btn-success" type="submit" v-else @click="editData(true)">Save</button>
-                                    <button class="btn btn-lg" type="reset" v-if="!viewMode">Reset</button>
+                                    <input type="button" class="btn btn-warning" v-if="viewMode" @click="editData()" value="Edit">
+                                    <input type="button" class="btn btn-danger" v-else @click="saveData()" value="Save">
+                                    <input type="button" class="btn btn-default" v-if="!viewMode" @click="resetData()" value="Reset">
                                 </div>
                             </div>
                         </form>
@@ -61,7 +61,6 @@ export default {
         return {
                 first_name: "",
                 last_name: "",
-                phone: "+77073206178",
                 email: "", 
                 password: "",
                 hasfocus: 0,
@@ -71,15 +70,13 @@ export default {
         },
     mounted(){
         this.token = localStorage.data
-        console.log(this.token)
-        axios.get('http://10.101.20.45:8080/databind/api/me',{
+        axios.get('http://10.101.52.46:8080/databind/api/users/me', {
             headers: {
-                "Authorization" : "value"
+                "Authorization" :  this.token
             }
             
         })
         .then(response => {
-            console.log(response.data);
             this.first_name = response.data.firstname;
             this.last_name = response.data.surname;
             this.email = response.data.mail;
@@ -88,7 +85,6 @@ export default {
         .catch(e => {
             console.log(e);
         })
-        // google-chrome --disable-web-security -–allow-file-access-from-fes --user-data-dir
         
     },
     methods: {
@@ -99,26 +95,36 @@ export default {
         focusOut(value) {
             this.hasfocus = 0;
         },
-        editData(value){
-            this.viewMode = value;
-            if(value){
-            //   axios.put('http://10.101.20.45:8080/databind/api/me',{
-            //       headers:{
-            //           "Authorization": this.token
-            //       },
-            //         mail: this.email,
-            //         password: this.password,
-            //         firstname: this.first_name,
-            //         surname: this.last_name
-            //   })
-            //   .then(response => {
-            //       console.log(response.data);
-            //       this.$router.push('/profile');
-            //   })
-            //   .catch(e => {
-            //       console.log(e);
-            //   })
-          }
+        editData(){
+            this.viewMode = false;
+        },
+        saveData(){
+            if(this.email && this.password && this.first_name && this.last_name){
+                this.viewMode = true
+                axios.put('http://10.101.52.46:8080/databind/api/users/me',{
+                    mail: this.email,
+                    password: this.password,
+                    firstname: this.first_name,
+                    surname: this.last_name
+                },{
+                    headers:{
+                        "Authorization": this.token
+                    }
+                })
+                .then(response => {
+                    this.$router.push('/profile');
+                })
+                .catch(e => {
+                    console.log(e);
+                })
+            } else {
+                alert("Forms may not be empty.");
+            }
+        },
+        resetData(){
+            this.password = '';
+            this.first_name = '';
+            this.last_name = '';
         }
     },
     computed: {

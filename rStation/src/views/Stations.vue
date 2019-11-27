@@ -11,44 +11,39 @@
                             <span>Please click on a station on Map below.</span>
                         </div>
                         <div class="row">
-                            <div class="form-group col-4">
+                            <div class="form-group col-3">
+                                <input  type="hidden" id="stationID">
                                 <div class="col-sm-12">
                                     <label for="stationName"><h4>Station name</h4></label>
-                                    <input :class="{ 'active': hasfocus == 1 }" @focusin="focusIn(1)" @focusout="focusOut(1)" type="text" id="stationName" class="form-control prefix" name="stationName" placeholder="Station name" title="enter your first name if any." :disabled="viewMode">
+                                    <input :class="{ 'active': hasfocus == 1 }" @focusin="focusIn(1)" @focusout="focusOut(1)" type="text" id="stationName" class="form-control prefix" name="stationName" placeholder="Station name" title="enter your first name if any.">
                                 </div>
                             </div>
-                            <div class="form-group col-4">                        
+                            <div class="form-group col-3">
+                                <div class="col-sm-12">
+                                    <label for="stationName"><h4>Station adress</h4></label>
+                                    <input :class="{ 'active': hasfocus == 2 }" @focusin="focusIn(2)" @focusout="focusOut(2)" type="text" id="stationAdress" class="form-control prefix" name="stationName" placeholder="Station adress" title="enter your first name if any.">
+                                </div>
+                            </div>
+                            <div class="form-group col-3">                        
                                 <div class="col-sm-12">
                                     <label for="stationLatitute"><h4>Latitute</h4></label>
-                                    <input :class="{ 'active': hasfocus == 2 }" @focusin="focusIn(2)" @focusout="focusOut(2)" type="text" id="stationLatitute" class="form-control" name="stationLatitute" placeholder="73.1234" title="enter your last name if any." :disabled="viewMode">
+                                    <input :class="{ 'active': hasfocus == 3 }" @focusin="focusIn(3)" @focusout="focusOut(3)" type="text" id="stationLatitude" class="form-control" name="stationLatitute" placeholder="73.1234" title="enter your last name if any.">
                                 </div>
                             </div>        
-                            <div class="form-group col-4">              
+                            <div class="form-group col-3">              
                                 <div class="col-sm-12">
                                     <label for="stationLongitude"><h4>Longitude</h4></label>
-                                    <input :class="{ 'active': hasfocus == 3 }" @focusin="focusIn(3)" @focusout="focusOut(3)" type="text" id="stationLongitude" class="form-control" name="stationLongitude" placeholder="52.12432" title="enter your phone number if any." :disabled="viewMode">
+                                    <input :class="{ 'active': hasfocus == 4 }" @focusin="focusIn(4)" @focusout="focusOut(4)" type="text" id="stationLongitude" class="form-control" name="stationLongitude" placeholder="52.12432" title="enter your phone number if any.">
                                 </div>
                             </div>
                         </div>
                         <div class="form-group row">
-                                <div class="col-md-2">
-                                    <button class="btn btn-lg btn-warning" type="button" v-if="viewMode" @click="editData(false)">Edit</button>
-                                    <button class="btn btn-lg btn-success" type="button" v-else @click="editData(true)">Save</button>
-                                </div>
-                                <div class="col-md-2" v-if="!addStation">
-                                    <button class="btn btn-lg btn-danger" type="button" @click="deleteData(true)">Delete</button>
-                                </div>
-                            </div>
+                            <input type="button" class="btn btn-warning" v-if="addStation" @click="addData()" value="Add Station">
+                            <input type="button" class="btn btn-danger" v-else @click="saveData()" value="Save">
+                            <input type="button" class="btn btn-default" @click="resetData()" value="Reset">
+                        </div>
                     </form>
                 </div>
-                <!-- <autocomplete-vue
-                    :list="kzCities"
-                    property="city"
-                    placeholder="Choose Station..."
-                    classPrefix="pick-station"
-                    inputClass="pick-input"
-                    threshold="2"
-                ></autocomplete-vue> -->
                 <div class="google-map" id="map"></div>
             </div>
         </div>
@@ -60,6 +55,7 @@ import GoogleMapsLoader from 'google-maps'
 import ProfileMenu from '../components/ProfileMenu.vue'
 import AutocompleteVue from 'autocomplete-vue'
 import json from '../assets/kz.json'
+import axios from 'axios'
 
     export default {
         components:{
@@ -69,11 +65,11 @@ import json from '../assets/kz.json'
         name: 'google-map',
         data() {
             return {
-                kzCities: json,
+                stations: [],
+                token: '',
                 map: null,
                 clickedRoutes: null,
                 hasfocus: 0,
-                viewMode: false,
                 addStation: false,
                 stationName: null,
                 stationLatitute: null,
@@ -86,15 +82,25 @@ import json from '../assets/kz.json'
             }
         },
         mounted: function () {
-            this.init(false)
+            this.token = localStorage.data
+            localStorage.removeItem('stations')
+            axios.get("http://10.101.52.46:8080/databind/api/stations"
+            ).then(response => {
+                localStorage.setItem('stations', JSON.stringify(response.data));
+                this.init(false)
+            }).catch(e => {
+                console.log(e);
+            });
         },
         methods: {
             init(value){
-                var stations = this.kzCities;
+                var stations =  JSON.parse(localStorage.getItem('stations'))
                 this.addStation = value;
                 var addStation = value;
+                document.getElementById("stationID").value = '';
                 document.getElementById("stationName").value = '';
-                document.getElementById("stationLatitute").value = '';
+                document.getElementById("stationAdress").value = '';
+                document.getElementById("stationLatitude").value = '';
                 document.getElementById("stationLongitude").value = '';
                 GoogleMapsLoader.KEY = 'AIzaSyC89sEOJvI6sPySOghfkKsm7FsLqfZZL98';   // Google map api KEY ( Change to your's )
                 GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];                // Library for more map options
@@ -193,18 +199,19 @@ import json from '../assets/kz.json'
                             clickedStations = marker;
                             marker.setAnimation(google.maps.Animation.BOUNCE);
                             new google.maps.Marker(marker)  
-                            document.getElementById("stationLatitute").value = marker.position.lat();
+                            document.getElementById("stationLatitude").value = marker.position.lat();
                             document.getElementById("stationLongitude").value = marker.position.lng();
                         });
                     } 
-            
                     /*   Click on marker   */
-                    stations.forEach((station) => {
+                    stations.forEach(station => {
                         station.lat = parseFloat(station.lat);
                         station.lng = parseFloat(station.lng);
                         google.maps.event.addDomListener(station, 'click', function() {
-                            document.getElementById("stationName").value = station.city;
-                            document.getElementById("stationLatitute").value = station.lat;
+                            document.getElementById("stationID").value = station.StationID;
+                            document.getElementById("stationName").value = station.name;
+                            document.getElementById("stationAdress").value = station.adress;
+                            document.getElementById("stationLatitude").value = station.lat;
                             document.getElementById("stationLongitude").value = station.lng;
                         });
                         const position = new google.maps.LatLng(station.lat, station.lng)
@@ -220,8 +227,61 @@ import json from '../assets/kz.json'
             focusOut(value) {
                 this.hasfocus = 0;
             },
-            editData(value){
-                this.viewMode = value;   
+            addData(){
+                var name = document.getElementById("stationName").value;
+                var adress = document.getElementById("stationAdress").value;
+                var lat = document.getElementById("stationLatitude").value;
+                var lng = document.getElementById("stationLongitude").value;
+                if(name && adress && lat && lng){
+                    axios.post("http://10.101.52.46:8080/databind/api/stations", {
+                        name: name,
+                        adress: adress,
+                        lat: lat,
+                        lng: lng
+                    }, {
+                        headers:{
+                            "Authorization": this.token
+                        }
+                    }).then(response => {
+                        window.location.reload()
+                    }).catch(e => {
+                        alert(e.response.data);
+                    });
+                } else {
+                    alert('Fill all the fields.')
+                }
+            },
+            saveData(){
+                var id = document.getElementById("stationID").value;
+                var name = document.getElementById("stationName").value;
+                var adress = document.getElementById("stationAdress").value;
+                var lat = document.getElementById("stationLatitude").value;
+                var lng = document.getElementById("stationLongitude").value;
+                if(name && adress && lat && lng){
+                    axios.put("http://10.101.52.46:8080/databind/api/stations", {
+                        StationID: id,
+                        name: name,
+                        adress: adress,
+                        lat: lat,
+                        lng: lng
+                    }, {
+                        headers:{
+                            "Authorization": this.token
+                        }
+                    }).then(response => {
+                        window.location.reload()
+                    }).catch(e => {
+                        alert(e.response.data);
+                    });
+                } else {
+                    alert('Fill all the fields.')
+                }
+            },
+            resetData(){
+                var name = document.getElementById("stationName").value = '';
+                var adress = document.getElementById("stationAdress").value = '';
+                var lat = document.getElementById("stationLatitude").value = '';
+                var lng = document.getElementById("stationLongitude").value = '';
             }
         }
     }

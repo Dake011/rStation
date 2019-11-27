@@ -89,28 +89,25 @@
         },
     methods:{
         loginForm() {
-            this.$router.push('/profile');
-            // if(this.email.includes('@') && this.email.includes('.') && this.pass){
-            //     axios.post('http://localhost:8080/databind/api/login',{
-            //         header:{
-            //           'Access-Control-Allow-Origin': '*',
-            //           "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE",
-            //           "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-            //         },
-            //         mail: this.email,
-            //         password: this.pass
-            //       })
-            //       .then(response => {
-            //         localStorage.data = response.data;
-            //           console.log(response.data);
-            //           this.$router.push('/profile');
-            //       })
-            //       .catch(e => {
-            //           console.log(e);
-            //       })
-            //     //this.$router.push('/profile');
-            // }
-        }
+            if (this.email.includes("@") && this.email.includes(".") && this.pass) {
+                axios
+                .post("http://10.101.52.46:8080/databind/api/login", {
+                    mail: this.email,
+                    password: this.pass
+                })
+                .then(response => {
+                    localStorage.data = response.data.second;
+                    localStorage.manager = response.data.first;
+                    this.$router.push("/profile");
+                    window.location.reload();
+                })
+                .catch(e => {
+                    alert(e.response.data);
+                });
+            } else {
+                alert("Fill in all fields! or Wrong email!");
+            }
+        },
     }
   }
 </script>

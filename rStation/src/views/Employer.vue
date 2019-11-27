@@ -8,67 +8,79 @@
           <thead>
             <tr class="table-headers">
               <th>UUID</th>
-              <th>Name</th>
+              <th>First Name</th>
+              <th>Surname</th>
               <th>Time slots</th>
+              <th>Start time</th>
+              <th>End time</th>
               <th>Station</th>
               <th>Salary</th>
-              <th>Week hours</th>
-              <th></th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr class="employer-row" v-for="employer in employers" :key="employer">
-              <td class="bookingId">{{employer.EmployerId}}</td>
+            <tr class="employer-row" v-for="employee in employees" :key="employee.EmployeeID">
+              <td class="bookingId">{{employee.EmployeeID}}</td>
               <td>
                 <input
-                  :id="'name_' + employer.EmployerId"
+                  :id="'firstname_' + employee.EmployeeID"
                   type="text"
-                  v-model="employer.EmployerName"
-                />
-              </td>
-
-              <td>
-                <input
-                  :id="'workDays_' + employer.EmployerId"
-                  type="text"
-                  v-model="employer.EmployerWorkDays"
+                  v-model="employee.firstname"
                 />
               </td>
               <td>
                 <input
-                  :id="'station_' + employer.EmployerId"
+                  :id="'surname_' + employee.EmployeeID"
                   type="text"
-                  v-model="employer.WorkingStation"
+                  v-model="employee.surname"
                 />
               </td>
               <td>
                 <input
-                  class="intInput"
-                  :id="'salary_' + employer.EmployerId"
+                  style="max-width: 84px;"
+                  :id="'workDays_' + employee.EmployeeID"
                   type="text"
-                  v-model="employer.Salary"
+                  v-model="employee.Week_Days"
                 />
               </td>
               <td>
                 <input
                   class="intInput"
-                  :id="'workHours_' + employer.EmployerId"
+                  :id="'start_' + employee.EmployeeID"
                   type="text"
-                  v-model="employer.OverallHours"
+                  v-model="employee.start_work"
                 />
               </td>
-              <td v-on:click="Edit(employer)" style="text-align:center">
-                <i class="fas fa-edit"></i>
+              <td>
+                <input
+                  class="intInput"
+                  :id="'end_' + employee.EmployeeID"
+                  type="text"
+                  v-model="employee.end_work"
+                />
               </td>
-              <td v-on:click="Delete(employer)" style="text-align:center">
+              <td>
+                 <select :id="'station_' + employee.EmployeeID">
+                    <option v-for="station in stations" :key="station.StationID" :selected="employee.Stations_StationID === station.StationID">{{station.name}}</option>
+                </select>
+              </td>
+              <td>
+                <input
+                  class="intInput"
+                  :id="'salary_' + employee.EmployeeID"
+                  type="text"
+                  v-model="employee.salary_per_hour"
+                />
+              </td>
+              <td v-on:click="Delete(employee)" style="text-align:center;cursor:pointer">
                 <i class="fas fa-trash"></i>
               </td>
             </tr>
             <tr>
               <td style="border:none;background: #fff;">
                 <div style="text-align:left;position:relative">
-                  <button class="button" v-on:click="AddEmpolyer()">Add Employee</button>
+                  <button class="button" v-if="showAddEmployer" v-on:click="AddEmployer()">Add New Employee</button>
+                  <button class="button" v-else v-on:click="SaveEmployer()">Save New Employee</button>
                 </div>
               </td>
             </tr>
@@ -78,8 +90,7 @@
       <!--/col-9-->
     </div>
     <div style="text-align:right;position:relative">
-      <button class="button" v-on:click="Reset()">Reset</button>
-      <button class="button" v-on:click="Save()">Save</button>
+      <button class="button" v-on:click="SaveAll()">Save For Edit</button>
     </div>
   </div>
 </template>
@@ -87,6 +98,7 @@
 import ProfileMenu from "../components/ProfileMenu.vue";
 import BookingModal from "../components/BookingModal.vue";
 import { get, del } from "../helpers/api";
+import axios from 'axios'
 
 export default {
   components: {
@@ -98,107 +110,123 @@ export default {
       showModal: false,
       saveUpdates: false,
       canAddEmployer: true,
-      employers: [
-        {
-          EmployerId: "01892340",
-          EmployerName: "Kopbosinov Jaxsylyk",
-          EmployerWorkDays: "M,W,T  12:00-19:00",
-          WorkingStation: "Astana",
-          Salary: 120000,
-          OverallHours: 32
-        },
-        {
-          EmployerId: "01892341",
-          EmployerName: "Jaxsylyk Kopbosinov",
-          EmployerWorkDays: "M,W,T 12:00-19:00",
-          WorkingStation: "Almaty",
-          Salary: 130000,
-          OverallHours: 36
-        }
-      ]
+      showAddEmployer: true,
+      stations: [],
+      employees: []
     };
   },
   mounted: function () {
-    this.disabler();
-    this.getEmployers();
+    this.token = localStorage.data
+    axios.get("http://10.101.52.46:8080/databind/api/stations").then(response => {
+        this.stations = response.data
+    }).catch(e => {
+        console.log(e);
+    });
+
+    axios.get("http://10.101.52.46:8080/databind/api/managers/employees",{
+      headers:{
+          "Authorization": this.token
+      }
+    }).then(response => {
+      this.employees = response.data
+    }).catch(e => {
+        console.log(e);
+    });      
   },
   methods: {
-    disabler(){
-      var temp = document.getElementsByClassName('employer-row');
-      for(let x = 0; x < temp.length; x++){
-        var inputs = temp[x].querySelectorAll('input');
-        for(let i = 0; i < inputs.length; i++){
-          inputs[i].disabled = true;
-        }
-      }
-    },
-    AddEmpolyer(){
+    AddEmployer(){
+      this.showAddEmployer = false
       if(this.canAddEmployer){
         this.canAddEmployer = false;
-        this.employers.push({
-            EmployerId: "",
-            EmployerName: "",
-            EmployerWorkDays: "",
-            WorkingStation: "",
-            Salary: 0,
-            OverallHours: 0
+        this.employees.push({
+          EmployeeID: 0,
+          firstname: "",
+          surname: "",
+          Week_Days: "",
+          start_work: "",
+          end_work: "",
+          Stations_StationID: 0,
+          salary_per_hour: 0
         })
-      } else {
-        alert("Please, fill all fields.");
       }
     },
-    Edit(employer){
-      document.getElementById('name_' + employer.EmployerId).disabled = false;
-      document.getElementById('workDays_' + employer.EmployerId).disabled = false;
-      document.getElementById('station_' + employer.EmployerId).disabled = false;
-      document.getElementById('salary_' + employer.EmployerId).disabled = false;
-      document.getElementById('workHours_' + employer.EmployerId).disabled = false;
+    SaveEmployer(){
+      var firstname = document.getElementById("firstname_0").value;
+      var surname = document.getElementById("surname_0").value;
+      var workDays = document.getElementById("workDays_0").value;
+      var start = document.getElementById("start_0").value;
+      var end = document.getElementById("end_0").value;
+      var station = document.getElementById("station_0").value;
+      var salary = document.getElementById("salary_0").value;
+      if(firstname && surname && workDays && start && end && station && salary){
+          axios.post("http://10.101.52.46:8080/databind/api/managers/employees", {
+              firstname: firstname,
+              surname: surname,
+              Week_Days: workDays,
+              start_work: start,
+              end_work: end,
+              Stations_StationID: this.stations.find(x => x.name === station).StationID,
+              salary_per_hour: salary
+          }, {
+              headers:{
+                  "Authorization": this.token
+              }
+          }).then(response => {
+              window.location.reload()
+          }).catch(e => {
+              alert(e.response.data);
+          });
+      } else {
+          alert('Fill all the fields.')
+      }
     },
-    Save() {
-      //axios
-      window.location.reload();
-    },
-    Reset(){
-      window.location.reload();
-    },
-    Delete(emp) {
-      var _this = this;
-      del(
-        this,
-        "api/products",
-        {
-          params: {
-            id: id
-          }
-        },
-        function(response) {
-          console.log(response);
-          console.log("deleted");
-          _this.getList();
-        },
-        function(error) {}
-      );
-    },
-    getEmployers() {
-      let _this = this;
-      get(
-        this,
-        "/api/product/locality",
-        {
-          params: {
-            locality_id: product.locality_id
-          }
-        },
-        function(response) {},
-        function(error) {
-          console.log("got error", error);
+    SaveAll() {
+      var check = 0;
+      var employees = this.employees;
+      for(let i = 0; i < employees.length; i++){
+        var firstname = document.getElementById("firstname_" + employees[i].EmployeeID).value;
+        var surname = document.getElementById("surname_" + employees[i].EmployeeID).value;
+        var workDays = document.getElementById("workDays_" + employees[i].EmployeeID).value;
+        var start = document.getElementById("start_" + employees[i].EmployeeID).value;
+        var end = document.getElementById("end_" + employees[i].EmployeeID).value;
+        var station = document.getElementById("station_" + employees[i].EmployeeID).value;
+        var salary = document.getElementById("salary_" + employees[i].EmployeeID).value;
+        if(firstname && surname && workDays && start && end && station && salary){
+            axios.put("http://10.101.52.46:8080/databind/api/managers/employees/" + employees[i].EmployeeID, {
+                firstname: firstname,
+                surname: surname,
+                Week_Days: workDays,
+                start_work: start,
+                end_work: end,
+                Stations_StationID: this.stations.find(x => x.name === station).StationID,
+                salary_per_hour: salary
+            }, {
+                headers:{
+                    "Authorization": this.token
+                }
+            }).then(response => {
+              check++;
+              if(check == this.employees.length){
+                window.location.reload()
+              } 
+            }).catch(e => {
+                alert(e.response.data);
+            });
+        } else {
+            alert('Fill all the fields.')
         }
-      );
-    }
-  },
-  computed: {
-    OverallHours() {
-      return;
+      }
+    },
+    Delete(employee) {
+      axios.delete("http://10.101.52.46:8080/databind/api/managers/employees/" + employee.EmployeeID, {
+        headers:{
+            "Authorization": this.token
+        }
+      }).then(response => {
+        window.location.reload()
+      }).catch(e => {
+          console.log(e);
+      });
     }
   }
 };
@@ -244,13 +272,13 @@ export default {
     }
     td, th {
       border-top: 1px solid #ecf0f1;
-      padding: 8px 6px;
+      padding: 6px 4px;
       position: relative;
       input{
         padding: 2px;
       }
       .intInput{
-        max-width: 72px;
+        max-width: 48px;
       }
       input:disabled{
         background: none;

@@ -1,145 +1,164 @@
 <template>
-    <div class="home">
+  <div class="home">
     <!-- Search Form Area -->
-        <section class="dorne-welcome-area bg-img bg-overlay">
-            <div class="container h-100">
-                <div class="row h-100 align-items-center justify-content-center">
-                    <div class="col-12 col-md-10">
-                        <div id="booking" class="section">
-                            <div class="section-center">
-                                <div class="container">
-                                    <div class="row">
-                                        <div class="booking-form">
-                                            <div class="form-header">
-                                                <h1>Make your reservation</h1>
-                                            </div>
-                                            <form>
-                                                <div class="form-group">
-                                                    <div class="row">
-                                                        <div class="form-group col-4">
-                                                            <label class="form-group">
-                                                                <p class="enter-names enter-names-to">From:</p>
-                                                                <select @change="selectFrom($event)" class="form-control" name="movies">
-                                                                    <option value="Station From" disabled selected>Station From</option>
-                                                                    <option v-for="city in kzCities" :key="city.StationID" :selected="stationFrom === city.name">{{city.name}}</option>
-                                                                </select>
-                                                            </label>
-                                                        </div>
-                                                        <div class="form-group col-1">
-                                                            <div class="swap-icon" @click="swapStations()">
-                                                                <i class="fas fa-exchange-alt"></i>
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group col-4">
-                                                            <label class="form-group">
-                                                                <p class="enter-names enter-names-to">To:</p>
-                                                                <select @change="selectTo($event)" class="form-control" name="movies">
-                                                                    <option value="Station From" disabled selected>Station To</option>
-                                                                    <option v-for="city in kzCities" :key="city.StationID" :selected="stationTo === city.name">{{city.name}}</option>
-                                                                </select>
-                                                            </label>
-                                                        </div>
-                                                        <div class="form-group form-group-date col-4">
-                                                            <label class="form-group">
-                                                                <p class="enter-names enter-names-to">Date:</p>
-                                                                <input :value="Datee" @input="updateValue($event.target.value)" id="dateTime" class="form-control" type="date" required>
-                                                            </label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-btn">
-                                                    <button type="button" @click="showSchedules()" class="btn btn-danger">Search</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
+    <section class="dorne-welcome-area bg-img bg-overlay">
+      <div class="container h-100">
+        <div class="row h-100 align-items-center justify-content-center">
+          <div class="col-12 col-md-10">
+            <div id="booking" class="section">
+              <div class="section-center">
+                <div class="container">
+                  <div class="row">
+                    <div class="booking-form">
+                      <div class="form-header">
+                        <h1>Make your reservation</h1>
+                      </div>
+                      <form>
+                        <div class="form-group">
+                          <div class="row">
+                            <div class="form-group col-4">
+                              <label class="form-group">
+                                <p class="enter-names enter-names-to">From:</p>
+                                <select
+                                  @change="selectFrom($event)"
+                                  class="form-control"
+                                  name="movies"
+                                >
+                                  <option value="Station From" disabled selected>Station From</option>
+                                  <option
+                                    v-for="city in kzCities"
+                                    :key="city.StationID"
+                                    :selected="stationFrom === city.name"
+                                  >{{ city.name }}</option>
+                                </select>
+                              </label>
                             </div>
-                            
+                            <div class="form-group col-1">
+                              <div class="swap-icon" @click="swapStations()">
+                                <i class="fas fa-exchange-alt"></i>
+                              </div>
+                            </div>
+                            <div class="form-group col-4">
+                              <label class="form-group">
+                                <p class="enter-names enter-names-to">To:</p>
+                                <select
+                                  @change="selectTo($event)"
+                                  class="form-control"
+                                  name="movies"
+                                >
+                                  <option value="Station From" disabled selected>Station To</option>
+                                  <option
+                                    v-for="city in kzCities"
+                                    :key="city.StationID"
+                                    :selected="stationTo === city.name"
+                                  >{{ city.name }}</option>
+                                </select>
+                              </label>
+                            </div>
+                            <div class="form-group form-group-date col-4">
+                              <label class="form-group">
+                                <p class="enter-names enter-names-to">Date:</p>
+                                <input
+                                  :value="Datee"
+                                  @input="updateValue($event.target.value)"
+                                  id="dateTime"
+                                  class="form-control"
+                                  type="date"
+                                  required
+                                />
+                              </label>
+                            </div>
+                          </div>
                         </div>
+                        <div class="form-btn">
+                          <button
+                            type="button"
+                            @click="showSchedules()"
+                            class="btn btn-danger"
+                          >Search</button>
+                        </div>
+                      </form>
                     </div>
+                  </div>
                 </div>
+              </div>
             </div>
-        </section>
-        <div v-if="travelInstance">
-          <TrainInfo ref="showAllSchedule"></TrainInfo>
+          </div>
         </div>
-        <div class="kz-map">
-            <MainMap :kzCities="kzCities"></MainMap>
-        </div>
-        <div v-if="showSchedule && allSchedule">
-            <ScheduleTable :schedules="schedules" ref="showTravelInstance"></ScheduleTable>
-        </div>
-        <div v-if="!allSchedule">
-            <ScheduleTable :schedules="passSchedule" ref="showTravelInstance"></ScheduleTable>
-        </div>
+      </div>
+    </section>
+    <div v-if="travelInstance">
+      <TrainInfo :info="info" :depTime="depTime" :arrTime="arrTime" :schedules="schedules" ref="showAllSchedule"></TrainInfo>
     </div>
+    <div class="kz-map">
+      <MainMap :kzCities="kzCities"></MainMap>
+    </div>
+    <div v-if="showSchedule">
+      <ScheduleTable
+        @data="UpdateInfo"
+        :schedules="schedules"
+        :stationTo="stationTo"
+        :stationFrom="stationFrom"
+        ref="showTravelInstance"
+      ></ScheduleTable>
+    </div>
+    <!-- <div v-if="!allSchedule">
+      <ScheduleTable :schedules="passSchedule" ref="showTravelInstance"></ScheduleTable>
+    </div>-->
+  </div>
 </template>
 <script>
-import MainMap from '../components/MainMap.vue'
-import ScheduleTable from '../components/ScheduleTable.vue'
-import TrainInfo from '../components/TrainInfo.vue'
-import json from '../assets/kz.json'
-import axios from 'axios'
+import MainMap from "../components/MainMap.vue";
+import ScheduleTable from "../components/ScheduleTable.vue";
+import TrainInfo from "../components/TrainInfo.vue";
+import json from "../assets/kz.json";
+import axios from "axios";
 
 export default {
-    components:{
-        MainMap,
-        ScheduleTable,
-        TrainInfo,
-    },
+  components: {
+    MainMap,
+    ScheduleTable,
+    TrainInfo
+  },
   data() {
     return {
-        kzCities: json,
-        stationFrom: '',
-        stationTo: '',
-        Datee: null,
-        showSchedule: false,  
-        allSchedule: true,
-        travelInstance: false,
-        passSchedule: [],
-        schedules:[
-                    {
-                      TravelInstanceID: 1,
-                      TrainName: 'ABC',
-                      TrainType: ['talgo', 'lux'],
-                      from: 'Astana',
-                      to: 'Almaty',
-                      DepartureTime: '12-12-2019',
-                      ArrivalTime: '12-12-2019',
-                    },
-                    {
-                      TravelInstanceID: 2,
-                      TrainName: 'ABC',
-                      TrainType: ['talgo', 'lux'],
-                      from: 'Astana',
-                      to: 'Almaty',
-                      DepartureTime: '12-12-2019',
-                      ArrivalTime: '12-12-2019',
-                    }
-                  ]
-    }
+      kzCities: json,
+      stationFrom: "",
+      stationTo: "",
+      Datee: null,
+      showSchedule: false,
+      allSchedule: true,
+      travelInstance: false,
+      passSchedule: [],
+      schedules: [],
+      info: {},
+      clicked: 0,
+      depTime: null,
+      arrTime: null
+    };
   },
   mounted() {
     if (localStorage.stationFrom && localStorage.stationTo) {
       this.stationFrom = localStorage.stationFrom;
       this.stationTo = localStorage.stationTo;
     }
-    axios.get("http://10.3.30.241:8080/databind/api/stations", {
-        headers: {
-          Authorization:
-            "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJuYXppcnpodW1ha2hhbkBnbWFpbC5jb20iLCJpYXQiOjE1NzQwOTczOTgsInN1YiI6ImxvZ2luIiwiaXNzIjoicm95YWx3YXkiLCJleHAiOjE1NzY3MjcxNDR9.fT21D1IomAggrvcs9Uc0YNbUtcIHtS7T6J-k4e9nHoU"
-        }
-      }).then(response => {
+    axios
+      .get("http://10.101.52.46:8080/databind/api/stations")
+      .then(response => {
         this.kzCities = response.data;
-        console.log(this.kzCities);
 
-        console.log("success");
-      }).catch(e => {
-        console.log(e);
+        // console.log("success");
+      })
+      .catch(e => {
+        // console.log(e);
       });
   },
   methods: {
+    UpdateInfo(a) {
+      this.info = a;
+
+      // console.log(this.info);
+    },
     selectFrom(event) {
       this.stationFrom = event.target.value;
       localStorage.stationFrom = event.target.value;
@@ -161,34 +180,51 @@ export default {
       this.Datee = val;
     },
     showSchedules() {
-      console.log(this.stationFrom)
-      this.showSchedule = true;
+      // console.log(this.stationFrom);
       //location.reload();
-      //   if(this.stationFrom && this.stationTo && this.Date){
-      //       axios.get('http://localhost:8080/databind/api/schedules?from='+ this.stationFrom + '&to=' + this.stationTo + '&date=' + this.Date,{
-      //         header:{
-      //           'Access-Control-Allow-Origin': '*',
-      //           "Access-Control-Allow-Methods": "GET, PUT, POST, DELETE",
-      //           "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-      //         }
-      //       })
-      //       .then(response => {
-      //           this.schedules = response.data;
-      //           this.showSchedule = true;
-      //           console.log(response.data);
-      //       })
-      //       .catch(e => {
-      //           console.log(e);
-      //       })
-      //     }
+      if (this.stationFrom && this.stationTo && this.Datee) {
+        this.showSchedule = true;
+
+        axios
+          .get(
+            "http://10.101.52.46:8080/databind/api/schedules?from=" +
+              this.stationFrom +
+              "&to=" +
+              this.stationTo +
+              "&date=" +
+              this.Datee
+          )
+          .then(response => {
+            // console.log(response.data[0]);
+            this.schedules = response.data;
+            this.showSchedule = true;
+            var output = this.schedules[0].ArrivalTime.split(" ");
+            this.schedules[0].ArrivalTime = output[1];
+            this.schedules[0].ArrivalDate = output[0];
+            this.depTime = this.schedules[0].DepartureTime;
+            this.arrTime = this.schedules[0].ArrivalTime;
+            var output1 = this.schedules[0].DepartureTime.split(" ");
+            this.schedules[0].DepartureTime = output1[1];
+            this.schedules[0].DepartureDate = output1[0];
+
+            console.log(this.schedules);
+            this.clicked = 0;
+            // console.log(response.data);
+          })
+          .catch(e => {
+            console.log(e);
+          });
+      } else {
+        alert("Fill in all inputs!");
+      }
     },
-    showTravelInstance(selectSchedule){
+    showTravelInstance(selectSchedule) {
       this.travelInstance = true;
-      this.passSchedule.push({selectSchedule});
-      if(this.passSchedule.length > 1) this.passSchedule.shift();
+      this.passSchedule.push({ selectSchedule });
+      if (this.passSchedule.length > 1) this.passSchedule.shift();
       this.allSchedule = false;
     },
-    showAllSchedule(){
+    showAllSchedule() {
       this.travelInstance = false;
       this.allSchedule = true;
       this.passSchedule.pop();
@@ -199,16 +235,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.pick-station{
-    z-index: 20;
-    position: absolute;
-    overflow: hidden;
-    background: #fff;
-    border: rgba(0,0,0,0.8);
-    border-radius: .25rem;
-    width: 100%;
+.pick-station {
+  z-index: 20;
+  position: absolute;
+  overflow: hidden;
+  background: #fff;
+  border: rgba(0, 0, 0, 0.8);
+  border-radius: 0.25rem;
+  width: 100%;
 }
-.home{
+.home {
   width: 100%;
   height: 945px;
   position: relative;
@@ -242,12 +278,12 @@ export default {
   background-size: cover;
   border-radius: 5px;
   z-index: 20;
-  opacity: 1;   // Change opacity value to see MAP clear and add :hover below
+  opacity: 0.7; // Change opacity value to see MAP clear and add :hover below
   max-height: 300px;
 }
-// .booking-form:hover {
-//   opacity: 0.8;
-// }
+.booking-form:hover {
+  opacity: 0.9;
+}
 .booking-form::before {
   content: "";
   position: absolute;

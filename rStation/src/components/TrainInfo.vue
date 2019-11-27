@@ -17,12 +17,12 @@
                </div>
                <div class="col-8 col-l-12 car_select_radio_btn second">
                   <div class="train__item train__item--first"></div>
-                  <div class="train__item-wrapper js-car_select_one_btn" v-for="vagon in vagons.slice(1)" :key="vagon.id">
+                  <div class="train__item-wrapper js-car_select_one_btn" v-for="vagon in info.vagons" :key="vagon.Vagon_Number">
                      <input type="radio" data-action="gd-car_select_radio" name="car_select_radio_btn_c7520bbc92fe3ab3330098c6d96849f7" data-best-offer="false" class="form-radio" data-car-details="{&quot;conditioner&quot;:&quot;&quot;}" data-car-number="1" data-user-fields="first_name,last_name,document_type,document_number">
-                     <label for="car2" :id="'vagon' + vagon.id" class="train__item" v-on:click="selectVagon(vagon.id)">
-                     <span class="train__item-num">{{ vagon.id }}</span>
+                     <label for="car2" :id="'vagon' + vagon.Vagon_Number" class="train__item" v-on:click="selectVagon(vagon.Vagon_Number)">
+                     <span class="train__item-num">{{ vagon.Vagon_Number }}</span>
                      <span class="train__item-text">available</span>
-                     <span class="train__item-seats">{{ vagon.seats.length }}</span>
+                     <span class="train__item-seats">{{ vagon.Seats.length }}</span>
                      </label>
                   </div>
                </div>
@@ -64,12 +64,12 @@
                                        </div>
                                        <div class="wagon-block__middle">
                                           <div class="passengers_top">
-                                             <div class="item-kupe" v-for="index in vagons[selectedVagonID].kupeNumber" :key="index">
+                                             <div class="item-kupe" v-for="index in parseInt(info.vagons[selectedVagon].KupeNumber)" :key="index">
                                                 <div class="item-table"></div>
-                                                    <a v-on:click="selectSeat(index*4 - 2)" tooltip="Upper" v-bind:class="{'available_seat': vagons[selectedVagonID].seats.includes(index*4 - 2), 'unavailable_seat': !vagons[selectedVagonID].seats.includes(index*4 - 2), 'selected_seat': selectedSeats.includes('vagon' + selectedVagonID + '_seat' + (index*4 - 2))}" class="one-seat one_sit tl top" :id="'vagon' + selectedVagonID + '_seat' + (index*4 - 2)">{{ index*4 - 2 }}</a>
-                                                    <a v-on:click="selectSeat(index*4 - 3)" tooltip="Lower" v-bind:class="{'available_seat': vagons[selectedVagonID].seats.includes(index*4 - 3), 'unavailable_seat': !vagons[selectedVagonID].seats.includes(index*4 - 3), 'selected_seat': selectedSeats.includes('vagon' + selectedVagonID + '_seat' + (index*4 - 3))}" class="one-seat one_sit bl bottom" :id="'vagon' + selectedVagonID + '_seat' + (index*4 - 3)">{{ index*4 - 3 }}</a>
-                                                    <a v-on:click="selectSeat(index*4)" tooltip="Upper" v-bind:class="{'available_seat': vagons[selectedVagonID].seats.includes(index*4), 'unavailable_seat': !vagons[selectedVagonID].seats.includes(index*4 ), 'selected_seat': selectedSeats.includes('vagon' + selectedVagonID + '_seat' + (index*4))}" class="one-seat one_sit tr top" :id="'vagon' + selectedVagonID + '_seat' +  index*4">{{ index*4 }}</a>
-                                                    <a v-on:click="selectSeat(index*4 - 1)" tooltip="Lower" v-bind:class="{'available_seat': vagons[selectedVagonID].seats.includes(index*4 - 1), 'unavailable_seat': !vagons[selectedVagonID].seats.includes(index*4 - 1), 'selected_seat': selectedSeats.includes('vagon' + selectedVagonID + '_seat' + (index*4 - 1))}" class="one-seat one_sit br bottom" :id="'vagon' + selectedVagonID + '_seat' + (index*4 - 1)">{{ index*4 - 1 }}</a>
+                                                    <a v-on:click="selectSeat(index*4 - 2)" tooltip="Upper" v-bind:class="{'available_seat': info.vagons[selectedVagon].Seats.includes(index*4 - 2), 'unavailable_seat': !info.vagons[selectedVagon].Seats.includes(index*4 - 2), 'selected_seat': selectedSeats.includes('vagon' + selectedVagonID + '_seat' + (index*4 - 2))}" class="one-seat one_sit tl top" :id="'vagon' + selectedVagonID + '_seat' + (index*4 - 2)">{{ index*4 - 2 }}</a>
+                                                    <a v-on:click="selectSeat(index*4 - 3)" tooltip="Lower" v-bind:class="{'available_seat': info.vagons[selectedVagon].Seats.includes(index*4 - 3), 'unavailable_seat': !info.vagons[selectedVagon].Seats.includes(index*4 - 3), 'selected_seat': selectedSeats.includes('vagon' + selectedVagonID + '_seat' + (index*4 - 3))}" class="one-seat one_sit bl bottom" :id="'vagon' + selectedVagonID + '_seat' + (index*4 - 3)">{{ index*4 - 3 }}</a>
+                                                    <a v-on:click="selectSeat(index*4)" tooltip="Upper" v-bind:class="{'available_seat': info.vagons[selectedVagon].Seats.includes(index*4), 'unavailable_seat': !info.vagons[selectedVagon].Seats.includes(index*4 ), 'selected_seat': selectedSeats.includes('vagon' + selectedVagonID + '_seat' + (index*4))}" class="one-seat one_sit tr top" :id="'vagon' + selectedVagonID + '_seat' +  index*4">{{ index*4 }}</a>
+                                                    <a v-on:click="selectSeat(index*4 - 1)" tooltip="Lower" v-bind:class="{'available_seat': info.vagons[selectedVagon].Seats.includes(index*4 - 1), 'unavailable_seat': !info.vagons[selectedVagon].Seats.includes(index*4 - 1), 'selected_seat': selectedSeats.includes('vagon' + selectedVagonID + '_seat' + (index*4 - 1))}" class="one-seat one_sit br bottom" :id="'vagon' + selectedVagonID + '_seat' + (index*4 - 1)">{{ index*4 - 1 }}</a>
                                              </div>
                                           </div>
                                           <!-- passengers_top -->
@@ -167,14 +167,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group bottom-form" v-if="selectedSeats.length != 0">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="customControlValidation1" required>
-                                <label class="custom-control-label" for="customControlValidation1">Agree to <a href="https://www.symantec.com/content/en/us/about/downloads/symantec-online-services-agreement-2016-11-en.pdf">terms and conditions</a></label>
-                            </div>
-                        </div>
                         <div class="text-center bottom-form-btn" v-if="selectedSeats.length != 0">
-                            <mdb-btn gradient="blue" type="submit" rounded class="btn-block z-depth-1a">Proceed</mdb-btn>
+                            <mdb-btn gradient="blue" type="button" rounded class="btn-block z-depth-1a" v-on:click="goProceed()">Proceed</mdb-btn>
                         </div>
                     </form>
                </div>
@@ -185,8 +179,10 @@
 </template>
 <script>
 import { mdbInput, mdbBtn } from 'mdbvue';
+import axios from 'axios'
 
 export default {
+    props: ['info', 'depTime', 'arrTime', 'schedules'],
     components: {
       mdbInput,
       mdbBtn
@@ -194,47 +190,25 @@ export default {
     data() {
         return{
             selectedVagonID: 0,
+            selectedVagon: 0,
             selectedSeats: [],
             passengers:[],
             price: 11989,
-            vagons:[
-                {
-                    id: 0,
-                    kupeNumber: 0,
-                    seatNumber: 0,
-                    seats: []
-                },
-                {
-                    id: 1,
-                    kupeNumber: 12,
-                    seatNumber: 20,
-                    seats: [1,2,3,6,7,8,12]
-                },
-                {
-                    id: 2,
-                    kupeNumber: 5,
-                    seatNumber: 24,
-                    seats: [1,3,4,6]
-                },
-                {
-                    id: 3,
-                    kupeNumber: 6,
-                    seatNumber: 24,
-                    seats: [1,3,4,6]
-                },
-                {
-                    id: 4,
-                    kupeNumber: 3,
-                    seatNumber: 24,
-                    seats: [1,3,4,6]
-                }
-            ]
+            stations: []
         }
+    },
+    mounted: function(){
+      axios.get("http://10.101.52.46:8080/databind/api/stations").then(response => {
+        this.stations = response.data
+      }).catch(e => {
+          console.log(e);
+      });
     },
     methods:{
         selectVagon(vagonID){
             if(this.selectedVagonID) document.getElementById('vagon' + this.selectedVagonID).style.backgroundColor = "#ffffff";
             this.selectedVagonID = vagonID;
+            this.selectedVagon = parseInt(vagonID) - 1;
             document.getElementById('vagon' + vagonID).style.backgroundColor = "#a4a4db";
         },
         selectSeat(seatID){
@@ -242,7 +216,7 @@ export default {
                 if(this.selectedSeats.includes('vagon' + this.selectedVagonID + '_seat' + seatID)){
                     this.selectedSeats.splice(this.selectedSeats.indexOf('vagon' + this.selectedVagonID + '_seat' + seatID), 1);
                 } else {
-                    if(this.selectedSeats.length < 5){
+                    if(this.selectedSeats.length < 3){
                         this.passengers.push({
                             firstName: '',
                             lastName: '',
@@ -251,13 +225,42 @@ export default {
                         })
                         this.selectedSeats.push('vagon' + this.selectedVagonID + '_seat' + seatID);
                     } else {
-                        alert("You can't pick more that 5 seats.");
+                        alert("You can't pick more that 3 seats.");
                     }
                 }   
             }
         },
         deleteSeat(seat){
             this.selectedSeats.splice(this.selectedSeats.indexOf(seat), 1);
+        },
+        goProceed(){
+          var passengers = this.passengers;
+          for(let i = 0; i < passengers.length;i++){
+            if(passengers[i].firstName && passengers[i].lastName && passengers[i].email && passengers[i].passportNum){
+              axios.post("http://10.101.52.46:8080/databind/api/users/tickets", {
+                  Name: passengers[i].firstName,
+                  Surname: passengers[i].lastName,
+                  Price:"4000KZT",
+                  National_ID: passengers[i].passportNum,
+                  To_StationID: this.stations.find(x => x.name === localStorage.stationTo).StationID,
+                  Passanger_mail: passengers[i].email,
+                  Vagon_Number: this.selectedSeats[i][5],
+                  SeatNumber: this.selectedSeats[i][11],
+                  TravelInstanceID: this.schedules[0].TravelInstanceID,
+                  From_StationID: this.stations.find(x => x.name === localStorage.stationFrom).StationID,
+                  DeparturesAt: this.depTime,
+                  ArrivesAt: this.arrTime
+              }).then(response => {
+                  alert("Sucessfully purchased!!!")
+                  window.location.reload()
+              }).catch(e => {
+                  alert(e.response.data);
+              });
+            } else {
+              alert('Fill all the forms.')
+              break
+            }
+          }
         }
     }
 }

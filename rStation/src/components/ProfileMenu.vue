@@ -5,15 +5,15 @@
         <i class="fas fa-user-circle"></i>
         <span>Profile</span>
       </li>
-       <li class="menu-list-item" @click="$router.push('/stations')">
+       <li class="menu-list-item" @click="$router.push('/stations')" v-if="isManager">
         <i class="fas fa-place-of-worship"></i>
         <span>Stations</span>
       </li>
-      <li class="menu-list-item" @click="$router.push('/routes')">
+      <li class="menu-list-item" @click="$router.push('/pick-routes')" v-if="isManager">
         <i class="fas fa-map-marked-alt"></i>
         <span>Routes</span>
       </li>
-      <li class="menu-list-item" @click="$router.push('/employer')">
+      <li class="menu-list-item" @click="$router.push('/employer')" v-if="isManager">
         <i class="fas fa-user"></i>
         <span>Employees</span>
       </li>
@@ -22,10 +22,10 @@
         <i class="fas fa-history"></i>
         <span>Bookings</span>
       </li>
-      <li class="menu-list-item" @click="$router.push('/settings')">
+      <!-- <li class="menu-list-item" @click="$router.push('/settings')">
         <i class="fas fa-user-cog"></i>
         <span>Settings</span>
-      </li>
+      </li> -->
 
       <li class="menu-list-item" @click="$router.push('/login')">
         <i class="fas fa-power-off"></i>
@@ -35,7 +35,18 @@
   </div>
 </template>
 <script>
-export default {};
+export default {
+  data(){
+    return{
+      isManager: false
+    }
+  },
+  mounted: function(){
+    if(localStorage.manager === 'true'){
+      this.isManager = localStorage.manager
+    }
+  }
+};
 </script>
 <style lang="scss" scoped>
 .menu-list {

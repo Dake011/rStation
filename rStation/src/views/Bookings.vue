@@ -7,22 +7,24 @@
                 <table>
                     <thead>
                         <tr class="table-headers">
-                            <th>Booking</th>
-                            <th>Date</th>
-                            <th>Market rate</th>
-                            <th>Price</th>
-                            <th>Value</th>
-                            <th>Value1</th>
+                            <th>TicketID</th>
+                            <th>From Station</th>
+                            <th>To Station</th>
+                            <th>Name</th>
+                            <th>Mail</th>
+                            <th>ID number</th>
+                            <th>DeparturesAt</th>
                         </tr>
                     </thead>
-                    <tbody v-for="booking in bookings" :key="booking">
+                    <tbody v-for="booking in bookings" :key="booking.TicketID">
                         <tr>
-                            <td class="bookingId" @click="openModal(booking)">{{booking.BookingId}}</td>
-                            <th class="mobile-header">Date</th><td>{{booking.BookingTickets}}</td>
-                            <th class="mobile-header">Market rate</th><td>{{booking.BookingDate}}</td>
-                            <th class="mobile-header">Weight</th><td>{{booking.BookingRoute}}</td>
-                            <th class="mobile-header">Value</th><td>{{booking.BookingPrice}}</td>
-                            <th class="mobile-header">Value1</th><td>{{booking.passengerLastName + ' ' + booking.passengerFirstName[0]}}.</td>
+                            <td class="bookingId" @click="openModal(booking)">{{booking.TicketID}}</td>
+                            <th class="mobile-header">From_StationID</th><td>{{stations.find(x => x.StationID === booking.From_StationID).name}}</td>
+                            <th class="mobile-header">To_StationID</th><td>{{stations.find(x => x.StationID === booking.To_StationID).name}}</td>
+                            <th class="mobile-header">Name</th><td>{{booking.Name + ' ' + booking.Surname[0]}}.</td>
+                            <th class="mobile-header">Passanger_mail</th><td>{{booking.Passanger_mail}}</td>
+                            <th class="mobile-header">CreatedAt</th><td>{{booking.CreatedAt}}</td>
+                            <th class="mobile-header">DeparturesAt</th><td>{{booking.DeparturesAt.slice(0, 10)}}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -33,6 +35,7 @@
 <script>
 import ProfileMenu from '../components/ProfileMenu.vue'
 import BookingModal from '../components/BookingModal.vue'
+import axios from 'axios'
 
 export default {
     components:{
@@ -42,49 +45,30 @@ export default {
     data() {
         return {
                 showModal: false,
-                bookings:[
-                            {
-                                BookingId: "01892342",
-                                BookingPrice: 4590,
-                                BookingTickets: 1,
-                                BookingDate: "02-05-2019",
-                                BookingRoute: "Almaty-Astana",
-                                passengerFirstName: "Dimash",
-                                passengerLastName: "Kaldykhanov",
-                                trainName: "TrainName",
-                                trainDepDate: "04-05-2019",
-                                trainArrDate: "05-05-2019",
-                                trainSeatNumber: [45]
-                            },
-                            {
-                                BookingId: "01892342",
-                                BookingPrice: 9180,
-                                BookingTickets: 1,
-                                BookingDate: "02-05-2019",
-                                BookingRoute: "Almaty-Astana",
-                                passengerFirstName: "Dimash",
-                                passengerLastName: "Kaldykhanov",
-                                trainName: "TrainName",
-                                trainDepDate: "04-05-2019",
-                                trainArrDate: "05-05-2019",
-                                trainSeatNumber: [60]
-                            },
-                            {
-                                BookingId: "01892342",
-                                BookingPrice: 4890,
-                                BookingTickets: 1,
-                                BookingDate: "03-05-2019",
-                                BookingRoute: "Almaty-Astana",
-                                passengerFirstName: "Dimash",
-                                passengerLastName: "Kaldykhanov",
-                                trainName: "TrainName",
-                                trainDepDate: "04-05-2019",
-                                trainArrDate: "05-05-2019",
-                                trainSeatNumber: [45]
-                            }
-                        ]
+                token: null,    
+                bookings: [],
+                stations: []
             };
         },
+    mounted: function(){
+        this.token = localStorage.data
+
+        axios.get("http://10.101.52.46:8080/databind/api/stations").then(response => {
+            this.stations = response.data
+        }).catch(e => {
+            console.log(e);
+        });
+
+        axios.get("http://10.101.52.46:8080/databind/api/users/tickets", {
+            headers:{
+                "Authorization": this.token
+            }
+        }).then(response => {
+            this.bookings = response.data
+        }).catch(e => {
+            console.log(e);
+        });
+    },
     methods: {
         openModal(data) {
             this.showModal = true

@@ -8,7 +8,8 @@ import Profile from "./views/Profile.vue";
 import Bookings from "./views/Bookings.vue";
 import Settings from "./views/Settings.vue";
 import Employer from "./views/Employer.vue";
-import Routes from "./views/Routes.vue";
+import AddRoutes from "./views/AddRoutes.vue";
+import PickRoutes from "./views/PickRoutes.vue";
 import Stations from "./views/Stations.vue";
 
 Vue.use(Router);
@@ -61,9 +62,14 @@ export default new Router({
       component: Settings
     },
     {
-      path: "/routes",
-      name: "routes",
-      component: Routes
+      path: "/add-routes",
+      name: "add-routes",
+      component: AddRoutes
+    },
+    {
+      path: "/pick-routes",
+      name: "pick-routes",
+      component: PickRoutes
     },
     {
       path: "/stations",

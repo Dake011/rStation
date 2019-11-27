@@ -3,11 +3,11 @@
     <table id="fifthTable">
       <thead>
         <tr>
-          <th>Train №</th>
+          <th>Train Name</th>
           <th>From</th>
           <th style="text-align:center">Time in way</th>
           <th style="text-align:right">To</th>
-          <th>Type</th>
+          <th>Price</th>
           <th>Number of places</th>
         </tr>
       </thead>
@@ -15,54 +15,48 @@
         <tr class="tb1" v-bind:key="schedule.TravelInstanceID" v-for="schedule in schedules">
           <td>
             <div class="trainInfo">
-              <div class="trainNum">{{schedule.TrainName}}</div>
+              <div class="trainNum">{{ schedule.TrainName }}</div>
+              <div class="trainDir">Train type: {{schedule.TrainType}}</div>
               <div>
-                <a href="#">Описание</a>
-              </div>
-              <div class="trainDir">{{schedule.TrainFrom}}->{{schedule.TrainTo}}</div>
-              <div>
-                <a href="#">Маршрут поезда</a>
+                <a href="#"></a>
               </div>
             </div>
           </td>
           <td>
             <div class="Departure">
-              <div class="time">21:09</div>
-              <div class="date">{{schedule.DepartureTime}}</div>
-              <div class="clientTo">{{schedule.ClientFrom}}</div>
-              <div class="text">(время местное)</div>
+              <div :id="schedule.TravelInstanceID + 'dep'" class="time">{{schedule.DepartureTime}}</div>
+              <div class="date">{{schedule.DepartureDate }}</div>
+              <div class="clientTo">{{ stationFrom }}</div>
+              <div class="text">(Local Time)</div>
             </div>
           </td>
           <td>
-            <div class="tm">14ч 21м</div>
+            <!-- <div v-if="schedules" class="tm">{{ timeInWay(schedule) }}</div> -->
+            <div v-if="schedules" class="tm">23:23</div>
+
             <div class="line"></div>
           </td>
           <td>
             <div class="Departure" style="text-align:right">
-              <div class="time">20:09</div>
-              <div class="date">{{schedule.ArrivalTime}}</div>
-              <div class="clientTo">{{schedule.ClientTo}}</div>
-              <div class="text">(время местное)</div>
+              <div :id="schedule.TravelInstanceID + 'arriv'" class="time">{{schedule.ArrivalTime}}</div>
+              <div class="date">{{ schedule.ArrivalDate}}</div>
+              <div class="clientTo">{{ stationTo }}</div>
+              <div class="text">(Local Time)</div>
             </div>
           </td>
           <td>
             <div class="type">
-              <div>Люкс: от</div>
-              <div style="font-weight:bold">{{schedule.LuxPrice}} KZT</div>
-            </div>
-            <div class="type">
-              <div>Купэ: от</div>
-              <div style="font-weight:bold">{{schedule.KupePrice}} KZT</div>
+              <div>from:</div>
+              <div style="font-weight:bold">11989 KZT</div>
             </div>
           </td>
           <td>
             <div>
-              мест:12
-              <button class="button" v-on:click="$parent.showTravelInstance(schedule)">Выбрать</button>
-            </div>
-            <div>
-              мест:32
-              <button class="button" v-on:click="$parent.showTravelInstance(schedule)">Выбрать</button>
+              place:32
+              <button
+                class="button"
+                v-on:click="$parent.showTravelInstance(schedule);TravelInstance(schedule.TravelInstanceID)"
+              >Choose</button>
             </div>
           </td>
         </tr>
@@ -74,26 +68,59 @@
 import axios from "axios";
 export default {
   name: "FormsPage",
-  props: ["schedules"],
+  props: ["schedules", "stationTo", "stationFrom"],
   data() {
     return {
       selected: [],
-      TravelInstance: false,
+      NumVagon: [1, 2, 3, 4],
       firstName: null,
       lastName: null,
       agentName: null,
       email: null,
       pass: null,
-      newPass: null
+      newPass: null,
+      num: 1
     };
   },
   mounted() {
-    
+    this.timeInWay();
   },
+  watch: {},
   methods: {
-    TrainInstance() {
-      this.TravelInstance = !this.TravelInstance;
-      console.log(this.TravelInstance);
+    TravelInstance(id) {
+      console.log(id);
+      axios
+        .get("http://10.101.52.46:8080/databind/api/trains/" + id)
+        .then(response => {
+          // this.schedules = response.data;
+          // this.showSchedule = true;
+          var a = response.data;
+          for(let i = 0; i < a.vagons.length;i++){
+            if (a.vagons[i].Num_Of_Seats % 4 === 0){
+              a.vagons[i].KupeNumber = a.vagons[i].Num_Of_Seats / 4;
+            } else {
+              a.vagons[i].KupeNumber = parseInt(a.vagons[i].Num_Of_Seats / 4) + 1;
+            }
+          }
+          this.$emit("data", a);
+        })
+        .catch(e => {
+          console.log(e);
+        });
+    },
+    timeInWay(schedule) {
+      // console.log(schedule.TravelInstanceID + "dep");
+      // var depTime = document.getElementById(schedule.TravelInstanceID + "dep");
+      // console.log(depTime);
+      // var arrivTime = document.getElementById(
+      //   schedule.TravelInstanceID + "arriv"
+      // ).textContent;
+      // arrivTime = arrivTime.split(":");
+      // depTime = depTime.split(":");
+      // console.log(depTime, arrivTime);
+      // var difHour = arrivTime[0] - depTime[0] + 24;
+      // var difMin = arrivTime[1] - depTime[1] + 24;
+      // return difHour + ":" + difMin;
     }
   },
   computed: {}
@@ -107,8 +134,11 @@ export default {
   background: #fff;
   position: relative;
   z-index: 20;
-  opacity: 1;  // Change opacity value to see MAP clear and add :hover below
+  opacity: 0.7; // Change opacity value to see MAP clear and add :hover below
   width: 70%;
+}
+#fifthTable:hover{
+  opacity: 0.9;
 }
 table th {
   text-transform: uppercase;

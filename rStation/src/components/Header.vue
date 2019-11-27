@@ -29,7 +29,6 @@
                                 <mdb-dropdown-menu>
                                 <mdb-dropdown-item class="user-li" @click="$router.push('/profile')"><i class="fas fa-user-circle"></i>Profile</mdb-dropdown-item>
                                 <mdb-dropdown-item class="user-li" @click="$router.push('/bookings')"><i class="fas fa-history"></i>Bookings</mdb-dropdown-item>
-                                <mdb-dropdown-item class="user-li" @click="$router.push('/settings')"><i class="fas fa-user-cog"></i>Settings</mdb-dropdown-item>
                                 <div class="dropdown-divider"></div>
                                 <mdb-dropdown-item class="user-li" @click="logOut()"><i class="fas fa-power-off"></i>Log out</mdb-dropdown-item>
                                 </mdb-dropdown-menu>
@@ -60,7 +59,7 @@ export default {
     },
     mounted: function () {
         this.isUser = false;
-        if(localStorage.getItem('data').length > 20) this.isUser = true;
+        if(localStorage.getItem('data') && localStorage.getItem('data').length > 20) this.isUser = true;
     },
     methods: {
         handleScroll(event) {
@@ -75,6 +74,7 @@ export default {
         logOut(){
             localStorage.removeItem('data');
             this.isUser = false;
+            this.$router.push('/login')
         }
     },
     created() {

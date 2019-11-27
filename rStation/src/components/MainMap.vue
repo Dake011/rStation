@@ -7,6 +7,7 @@
 
 <script>
 import GoogleMapsLoader from 'google-maps'
+import axios from "axios";
 
     export default {
         name: 'google-map',
@@ -22,9 +23,15 @@ import GoogleMapsLoader from 'google-maps'
             }
         },
         mounted: function () {
-           this.init();
+            axios.get("http://10.101.52.46:8080/databind/api/stations").then(response => {
+                localStorage.setItem('stations', JSON.stringify(response.data));
+                this.init()
+            }).catch(e => {
+                console.log(e);
+            });
            localStorage.stationFrom = null,
            localStorage.stationTo = null
+           
         },
         methods: {
             init(){
@@ -35,7 +42,7 @@ import GoogleMapsLoader from 'google-maps'
                 if(localStorage.stationTo){
                     stationTo = localStorage.stationTo;
                 }
-                var stations = this.kzCities;
+                var stations = JSON.parse(localStorage.getItem('stations'))
                 GoogleMapsLoader.KEY = 'AIzaSyC89sEOJvI6sPySOghfkKsm7FsLqfZZL98';
                 GoogleMapsLoader.LIBRARIES = ['geometry', 'places'];
                 GoogleMapsLoader.load(function(google) {
